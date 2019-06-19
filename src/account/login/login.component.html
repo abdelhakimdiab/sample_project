@@ -1,0 +1,155 @@
+<div class="m-login__signin" [@routerTransition]>
+    <div class="m-login__head">
+        <h3 class="m-login__title">
+            {{l("SignInToWorkiom")}}
+        </h3>
+    </div>
+
+    <div class="m-login__form m-form login-form login-wizard">
+
+
+        <!-- First Wizard Step: Email -->
+        <form *ngIf="loginWizardStep === LoginWizardStep.Email"
+              (submit)="submitUsernameOrEmail()"
+              class="login-wizard-step">
+
+            <div class="step-description">
+                {{shouldAskForTenantName ?
+                    l("PleaseEnterYourEmailAddress") :
+                    l("PleaseEnterYourUsernameOrEmailAddress")}}
+            </div>
+
+            <div class="form-group m-form__group">
+                <input name="emailInput" autoFocus dir="ltr" type="text" autocomplete="off"
+                       class="form-control {{isRtl ? 'form-control--rtl' : ''}} m-input"
+                       [(ngModel)]="loginService.authenticateModel.userNameOrEmailAddress"
+                       placeholder="{{shouldAskForTenantName ? l('EmailAddress') : l('UsernameOrEmailAddress')}} *"/>
+                <div *ngIf="invalidEmail" class="invalid-email-address {{isRtl ? 'text--rtl' : ''}}">
+                    {{shouldAskForTenantName ? l('InvalidEmailAddress') : l('InvalidUsernameOrEmailAddress')}}
+                </div>
+            </div>
+
+            <div class="m-login__form-action">
+                <button type="submit" *ngIf="loginWizardStep === LoginWizardStep.Email"
+                        class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air"
+                        [disabled]="!(loginService.authenticateModel.userNameOrEmailAddress?.length > 0) || submitting">
+                    {{l("Continue")}}
+                </button>
+            </div>
+
+        </form>
+
+
+        <!-- Second Wizard Step: Tenant -->
+        <form *ngIf="loginWizardStep === LoginWizardStep.Tenant" (submit)="submitTenant()" class="login-wizard-step">
+
+            <div class="step-description">{{l("PleaseSelectYourWorkspace")}}</div>
+
+            <div class="form-group m-form__group">
+                <a class="selected-email" href="javascript:void(0);" (click)="backToEmailStep()">
+                    {{loginService.authenticateModel.userNameOrEmailAddress}}
+                </a>
+                <div class="tenants-list">
+                    <div *ngFor="let tenant of availableTenants; let i = index"
+                         (click)="setTenant(tenant.tenancyName)"
+                         [autoFocus]="tenant.tenancyName === loginService.authenticateModel.tenantName"
+                         (keyup.space)="setTenant(tenant.tenancyName)"
+                         (keyup.enter)="setTenant(tenant.tenancyName)"
+                         tabindex="0"
+                         class="tenants-list__item{{tenant.tenancyName === loginService.authenticateModel.tenantName ? '--selected' : ''}}">
+                        {{tenant.name}}
+                    </div>
+                </div>
+            </div>
+
+            <div class="m-login__form-action">
+                <button type="submit" *ngIf="loginWizardStep === LoginWizardStep.Tenant"
+                        class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air"
+                        [disabled]="false">
+                    {{l("Continue")}}
+                </button>
+            </div>
+
+        </form>
+
+
+        <!-- Third Wizard Step: Password -->
+        <form *ngIf="loginWizardStep === LoginWizardStep.Password"
+              #loginForm="ngForm" class="m-login__form m-form login-form login-wizard-step"
+              method="post" autFocus novalidate (ngSubmit)="login()">
+
+            <div class="step-description">{{l("PleaseEnterYourPassword")}}</div>
+
+            <div class="form-group m-form__group">
+
+                <a class="selected-email"
+                   href="javascript:void(0);"
+                   (click)="backToEmailStep()">
+                    {{loginService.authenticateModel.userNameOrEmailAddress}}
+                </a>
+
+                <a class="selected-tenant"
+                   *ngIf="shouldAskForTenantName"
+                   href="javascript:void(0);"
+                   (click)="backToTenantStep()">
+                    {{selectedTenant.name}}
+                </a>
+
+                <input #passwordInput="ngModel" name="passwordInput"
+                       [(ngModel)]="loginService.authenticateModel.password"
+                       class="form-control {{isRtl ? 'form-control--rtl' : ''}} m-input"
+                       type="password" autocomplete="off" dir="ltr" autoFocus maxlength="32"
+                       placeholder="{{l('Password')}} *" />
+
+            </div>
+
+            <div *ngIf="loginWizardStep === LoginWizardStep.Password"
+                 class="row m-login__form-sub">
+                <div class="col m--align-right">
+                    <a id="forget-password" routerLink="/account/forgot-password"
+                       class="m-link forget-password {{isRtl ? 'form-control--rtl' : ''}}" >
+                        {{l("ForgotPassword")}}
+                    </a>
+                </div>
+            </div>
+
+            <div *ngIf="loginWizardStep === LoginWizardStep.Password"
+                 class="m-login__form-action">
+                <button type="submit" class="btn btn-focus m-btn m-btn--pill m-btn--custom m-btn--air">
+                    {{l("SignIn")}}
+                </button>
+            </div>
+
+        </form>
+
+
+    </div>
+
+
+    <div *ngIf="(_sessionService.tenantId > 0 || !multiTenancy.isEnabled) && loginService.externalLoginProviders.length > 0"
+         class="login-options">
+        <h4>{{l("LoginWith")}}</h4>
+        <ul class="social-icons">
+            <li *ngFor="let provider of loginService.externalLoginProviders">
+                <a class="social-login-icon social-icon-color {{provider.icon}}"
+                   (click)="externalLogin(provider)"
+                   title="{{provider.name}}">
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="m-stack__item m-stack__item--center">
+        <div class="m-login__account">
+            <span>
+                {{l("DontHaveAnAccount")}}
+                <a routerLink="/account/select-edition"
+                   id="register-btn"
+                   class="m-link m-link--focus m-login__account-link">
+                    {{l("SignUpNow")}}
+                </a>
+            </span>
+        </div>
+    </div>
+
+</div>

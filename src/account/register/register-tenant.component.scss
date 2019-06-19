@@ -1,0 +1,47 @@
+.domain-name__container {
+  position: relative;
+}
+
+.domain-name__text {
+  margin: 0;
+  font-size: 1.6rem;
+  position: absolute;
+  bottom: -2px;
+  right: 0px;
+  padding-bottom: 1rem;
+  line-height: 1.25;
+  color: #7a50a1;
+}
+
+.hidden {
+  display: none;
+}
+
+.m-login__form-action button {
+  margin: 6px;
+}
+
+
+.text--rtl {
+  text-align: right;
+  direction: rtl;
+}
+
+.form-control--rtl::placeholder {
+  direction: rtl;
+  text-align: right;
+}
+
+.captcha-container {
+  text-align: center;
+}
+
+.captcha-container > re-captcha {
+  display: inline-block;
+}
+
+.terms-conditions-text {
+  margin-top: 6px;
+  color: #888;
+  text-align: start;
+}
